@@ -28,13 +28,32 @@ pre[class*="language-"] {
 
 /* Copy button positioning in code block */
 #copyBtn {
-  opacity: 0.7;
+  opacity: 0.9;
   transition: all 0.2s ease;
+  background-color: rgba(255, 255, 255, 0.9);
+  backdrop-filter: blur(4px);
+  border: 1px solid rgba(226, 232, 240, 0.5); /* slate-200 with opacity */
 }
 
 #copyBtn:hover {
   opacity: 1;
   transform: scale(1.05);
+  background-color: rgba(255, 255, 255, 1);
+  border-color: rgba(99, 102, 241, 0.5); /* indigo-500 with opacity */
+}
+
+/* Dark mode copy button */
+@media (prefers-color-scheme: dark) {
+  html.dark #copyBtn {
+    background-color: rgba(15, 23, 42, 0.9); /* slate-900 with opacity */
+    border-color: rgba(71, 85, 105, 0.5); /* slate-600 with opacity */
+    color: rgb(226, 232, 240); /* slate-200 */
+  }
+  
+  html.dark #copyBtn:hover {
+    background-color: rgba(15, 23, 42, 1);
+    border-color: rgba(99, 102, 241, 0.5); /* indigo-500 with opacity */
+  }
 }
 
 /* QR canvas responsive sizing */
