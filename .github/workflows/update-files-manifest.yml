@@ -25,7 +25,9 @@ jobs:
           const {execSync} = require('node:child_process');
           const fs = require('node:fs');
 
-          const list = execSync("git ls-files '*.ino' '*.cpp' '*.h'", {encoding:'utf8'}).split('\n').filter(Boolean);
+          const all = execSync("git ls-files", {encoding:'utf8'}).split('\n').filter(Boolean);
+          const exts = [/\.(?:ino|cpp|h)$/i];
+          const list = all.filter(p => exts.some(rx => rx.test(p)));
           const branch = process.env.GITHUB_REF_NAME || 'main';
 
           const payload = {

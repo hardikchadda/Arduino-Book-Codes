@@ -147,9 +147,10 @@
 
   async function fetchManifest() {
     // Prefer a static files.json served from the site to avoid API rate limits
-    const url = `${location.origin}${state.basePath}files.json`;
+    // Use a relative path to tolerate custom domains and sub-path deployments
+    // Add a cache-busting param to avoid CDN staleness
     try {
-      const res = await fetch(url, { cache: 'no-store' });
+      const res = await fetch(`./files.json?v=${Date.now()}`, { cache: 'no-store' });
       if (!res.ok) throw new Error(`HTTP ${res.status} for manifest`);
       const data = await res.json();
       return data;
