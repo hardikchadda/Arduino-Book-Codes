@@ -100,9 +100,49 @@
     return meta.default_branch || 'main';
   }
 
+  const TREE_CACHE_TTL_MS = 5 * 60 * 1000; // 5 minutes
+
   async function getRepoTree(owner, repo, branch) {
     const url = `https://api.github.com/repos/${owner}/${repo}/git/trees/${encodeURIComponent(branch)}?recursive=1`;
-    return fetchJSON(url);
+    const cacheKey = `gh_tree:${owner}/${repo}@${branch}`;
+    const cachedRaw = localStorage.getItem(cacheKey);
+    let cached = null;
+    try { cached = cachedRaw ? JSON.parse(cachedRaw) : null; } catch {}
+
+    // If cached and fresh, return immediately without any API call
+    if (cached && typeof cached === 'object' && cached.data && cached.timestamp && (Date.now() - cached.timestamp) < TREE_CACHE_TTL_MS) {
+      setStatus('Using cached file list.');
+      return cached.data;
+    }
+
+    const headers = { 'Accept': 'application/vnd.github+json' };
+    if (cached && cached.etag) headers['If-None-Match'] = cached.etag;
+
+    const res = await fetch(url, { headers });
+
+    // If not modified, refresh timestamp and return cached data
+    if (res.status === 304 && cached && cached.data) {
+      localStorage.setItem(cacheKey, JSON.stringify({ ...cached, timestamp: Date.now() }));
+      setStatus('Using cached file list (not modified).');
+      return cached.data;
+    }
+
+    if (!res.ok) {
+      // Friendly handling for rate limit with cached fallback
+      if (res.status === 403 && cached && cached.data) {
+        setStatus('GitHub API rate limit reached. Showing cached file list.');
+        return cached.data;
+      }
+      const errText = await res.text().catch(() => '');
+      throw new Error(`HTTP ${res.status} for ${url}${errText ? ' — ' + errText : ''}`);
+    }
+
+    const data = await res.json();
+    const etag = res.headers.get('etag');
+    try {
+      localStorage.setItem(cacheKey, JSON.stringify({ etag, timestamp: Date.now(), data }));
+    } catch {}
+    return data;
   }
 
   function isArduinoFile(path) {
