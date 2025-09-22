@@ -188,15 +188,30 @@
     if (!input) return;
     function applyFilter() {
       const q = input.value.trim().toLowerCase();
-      const cards = $all('[data-filecard]');
-      let visibleCount = 0;
-      for (const card of cards) {
-        const path = card.getAttribute('data-path') || '';
-        const show = !q || path.toLowerCase().includes(q);
-        card.classList.toggle('hidden', !show);
-        if (show) visibleCount++;
+      const chapters = $all('[data-chapter]');
+      let totalVisibleCount = 0;
+      
+      for (const chapter of chapters) {
+        const cards = $all('[data-filecard]', chapter);
+        let chapterVisibleCount = 0;
+        
+        for (const card of cards) {
+          const path = card.getAttribute('data-path') || '';
+          const fileName = card.getAttribute('data-filename') || '';
+          const show = !q || path.toLowerCase().includes(q) || fileName.toLowerCase().includes(q);
+          card.classList.toggle('hidden', !show);
+          if (show) chapterVisibleCount++;
+        }
+        
+        // Hide/show entire chapter based on whether it has visible cards
+        const chapterTitle = chapter.getAttribute('data-chapter').toLowerCase();
+        const showChapter = chapterVisibleCount > 0 || (!q || chapterTitle.includes(q));
+        chapter.classList.toggle('hidden', !showChapter);
+        
+        if (showChapter) totalVisibleCount += chapterVisibleCount;
       }
-      $('#emptyState')?.classList.toggle('hidden', visibleCount !== 0);
+      
+      $('#emptyState')?.classList.toggle('hidden', totalVisibleCount !== 0);
     }
     input.addEventListener('input', applyFilter);
     document.addEventListener('keydown', (e) => {
@@ -223,15 +238,9 @@
     }
   }
 
-  function renderRepoBadge(owner, repo, branch) {
-    const el = $('#repoBadge');
-    if (!el) return;
-    el.textContent = owner && repo ? `${owner}/${repo}${branch ? ' @ ' + branch : ''}` : '';
-    el.classList.toggle('hidden', !(owner && repo));
-  }
 
-  function renderCards(files, ref) {
-    const container = $('#cards');
+  function renderChapters(files, ref) {
+    const container = $('#chapters');
     if (!container) return;
     container.innerHTML = '';
 
@@ -241,53 +250,91 @@
     }
     $('#emptyState')?.classList.add('hidden');
 
+    // Group files by chapter
+    const chapters = {};
     for (const file of files) {
-      const card = document.createElement('div');
-      card.setAttribute('data-filecard', '');
-      card.setAttribute('data-path', file.path);
-      card.className = 'rounded-lg border border-slate-200 bg-white p-4 shadow-sm dark:border-slate-800 dark:bg-slate-900 flex flex-col justify-between';
+      const pathParts = file.path.split('/');
+      const chapter = pathParts.length > 1 ? pathParts[0] : 'Other';
+      if (!chapters[chapter]) chapters[chapter] = [];
+      chapters[chapter].push(file);
+    }
 
-      const title = document.createElement('div');
-      title.className = 'mb-3 min-h-[2.5rem]';
-      title.innerHTML = `
-        <div class="truncate text-sm text-slate-500 dark:text-slate-400">${escapeHtml(file.path)}</div>
-        <div class="truncate text-base font-semibold">${escapeHtml(shortName(file.path))}</div>
+    // Sort chapters by name
+    const sortedChapters = Object.keys(chapters).sort();
+
+    for (const chapterName of sortedChapters) {
+      const chapterFiles = chapters[chapterName];
+      
+      // Create chapter section
+      const chapterSection = document.createElement('div');
+      chapterSection.setAttribute('data-chapter', chapterName);
+      chapterSection.className = 'chapter-section';
+
+      // Chapter header
+      const chapterHeader = document.createElement('div');
+      chapterHeader.className = 'mb-4';
+      chapterHeader.innerHTML = `
+        <h2 class="text-xl font-bold text-slate-900 dark:text-slate-100 mb-1">${escapeHtml(chapterName)}</h2>
+        <p class="text-sm text-slate-600 dark:text-slate-400">${chapterFiles.length} project${chapterFiles.length === 1 ? '' : 's'}</p>
       `;
+      chapterSection.appendChild(chapterHeader);
 
-      const actions = document.createElement('div');
-      actions.className = 'mt-3 flex items-center justify-between gap-3';
+      // Cards grid for this chapter
+      const cardsGrid = document.createElement('div');
+      cardsGrid.className = 'grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3';
 
-      const btn = document.createElement('a');
-      btn.className = 'rounded-md border border-slate-300 px-3 py-1.5 text-sm shadow-sm hover:bg-slate-100 dark:border-slate-700 dark:hover:bg-slate-800';
-      const previewUrl = getPreviewUrl(file.path, ref);
-      btn.href = previewUrl;
-      btn.textContent = 'View Code';
+      for (const file of chapterFiles) {
+        const card = document.createElement('div');
+        card.setAttribute('data-filecard', '');
+        card.setAttribute('data-path', file.path);
+        card.setAttribute('data-filename', shortName(file.path));
+        card.className = 'rounded-lg border border-slate-200 bg-white p-4 shadow-sm dark:border-slate-800 dark:bg-slate-900 hover:shadow-md transition-shadow';
 
-      const qrWrap = document.createElement('div');
-      qrWrap.className = 'flex items-center justify-center';
-      const qrEl = document.createElement('div');
-      qrEl.className = 'qr w-[96px] h-[96px]';
-      qrWrap.appendChild(qrEl);
+        const title = document.createElement('div');
+        title.className = 'mb-3';
+        title.innerHTML = `
+          <div class="text-base font-semibold text-slate-900 dark:text-slate-100 mb-1">${escapeHtml(shortName(file.path))}</div>
+          <div class="text-xs text-slate-500 dark:text-slate-400">${escapeHtml(file.path.split('/').slice(1).join('/') || file.path)}</div>
+        `;
 
-      actions.appendChild(btn);
-      actions.appendChild(qrWrap);
+        const actions = document.createElement('div');
+        actions.className = 'flex items-center justify-between gap-3';
 
-      card.appendChild(title);
-      card.appendChild(actions);
+        const btn = document.createElement('a');
+        btn.className = 'flex-1 text-center rounded-md bg-indigo-600 px-3 py-2 text-sm font-medium text-white shadow-sm hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500';
+        const previewUrl = getPreviewUrl(file.path, ref);
+        btn.href = previewUrl;
+        btn.textContent = 'View Code';
 
-      container.appendChild(card);
+        const qrWrap = document.createElement('div');
+        qrWrap.className = 'flex items-center justify-center';
+        const qrEl = document.createElement('div');
+        qrEl.className = 'qr w-[80px] h-[80px]';
+        qrWrap.appendChild(qrEl);
 
-      // Generate the QR after attach
-      try {
-        new QRCode(qrEl, {
-          text: previewUrl,
-          width: 96,
-          height: 96,
-          correctLevel: QRCode.CorrectLevel.M,
-        });
-      } catch (e) {
-        // ignore QR errors
+        actions.appendChild(btn);
+        actions.appendChild(qrWrap);
+
+        card.appendChild(title);
+        card.appendChild(actions);
+
+        cardsGrid.appendChild(card);
+
+        // Generate the QR after attach
+        try {
+          new QRCode(qrEl, {
+            text: previewUrl,
+            width: 80,
+            height: 80,
+            correctLevel: QRCode.CorrectLevel.M,
+          });
+        } catch (e) {
+          // ignore QR errors
+        }
       }
+      
+      chapterSection.appendChild(cardsGrid);
+      container.appendChild(chapterSection);
     }
   }
 
@@ -308,7 +355,6 @@
         setStatus('Fetching repository metadata…');
         state.branch = await getDefaultBranch(state.owner, state.repo);
       }
-      renderRepoBadge(state.owner, state.repo, state.branch);
 
       // Attempt to use a static manifest first
       setStatus('Loading file manifest…');
@@ -317,7 +363,7 @@
         if (manifest.branch) state.branch = manifest.branch;
         const files = filesFromManifest(manifest);
         files.sort((a, b) => a.path.localeCompare(b.path));
-        renderCards(files, state.branch);
+        renderChapters(files, state.branch);
         setStatus(`Found ${files.length} Arduino file${files.length === 1 ? '' : 's'} (via manifest).`);
         return;
       }
@@ -329,7 +375,7 @@
         .map(({ path, sha, size, url }) => ({ path, sha, size, url }));
 
       files.sort((a, b) => a.path.localeCompare(b.path));
-      renderCards(files, state.branch);
+      renderChapters(files, state.branch);
       setStatus(`Found ${files.length} Arduino file${files.length === 1 ? '' : 's'}.`);
     } catch (err) {
       console.error(err);
@@ -406,15 +452,68 @@
     const back = $('#backLink');
     if (back) back.href = `${state.basePath}index.html`;
 
-    // Generate QR for this page
-    try {
-      new QRCode($('#qr'), {
-        text: shareUrl,
-        width: 160,
-        height: 160,
-        correctLevel: QRCode.CorrectLevel.M,
-      });
-    } catch {}
+    // Setup share modal functionality
+    const shareModal = $('#shareModal');
+    const shareBtn = $('#shareBtn');
+    const closeModal = $('#closeModal');
+    
+    function showShareModal() {
+      shareModal?.classList.remove('hidden');
+      // Generate QR when modal opens
+      const qrContainer = $('#qr');
+      if (qrContainer) {
+        qrContainer.innerHTML = '';
+        try {
+          new QRCode(qrContainer, {
+            text: shareUrl,
+            width: 160,
+            height: 160,
+            correctLevel: QRCode.CorrectLevel.M,
+          });
+        } catch {}
+      }
+    }
+    
+    function hideShareModal() {
+      shareModal?.classList.add('hidden');
+    }
+    
+    // Share button click handler
+    shareBtn?.addEventListener('click', async () => {
+      // Try Web Share API first (mobile)
+      if (navigator.share && /Android|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent)) {
+        try {
+          await navigator.share({
+            title: `Arduino Project: ${shortName(path)}`,
+            text: `Check out this Arduino project: ${shortName(path)}`,
+            url: shareUrl
+          });
+          return;
+        } catch (e) {
+          // Fallback to modal if share fails
+        }
+      }
+      // Show modal for desktop or when Web Share API is not available
+      showShareModal();
+    });
+    
+    // Modal close handlers
+    closeModal?.addEventListener('click', hideShareModal);
+    shareModal?.addEventListener('click', (e) => {
+      if (e.target === shareModal) hideShareModal();
+    });
+    
+    // Copy URL button in modal
+    $('#copyUrlBtn')?.addEventListener('click', async () => {
+      try {
+        await navigator.clipboard.writeText(shareUrl);
+        setStatus('Link copied to clipboard!');
+        hideShareModal();
+        setTimeout(() => setStatus(''), 2000);
+      } catch (e) {
+        setStatus('Failed to copy link.');
+      }
+    });
 
     if (!path) {
       setStatus('Missing file path in URL.');
@@ -432,20 +531,23 @@
       }
       setStatus('');
 
-      // Copy
+      // Copy button (the icon next to code)
       $('#copyBtn')?.addEventListener('click', async () => {
         try {
           await navigator.clipboard.writeText(content);
-          setStatus('Copied to clipboard.');
-          setTimeout(() => setStatus(''), 1500);
+          setStatus('Code copied to clipboard!');
+          setTimeout(() => setStatus(''), 2000);
         } catch (e) {
-          setStatus('Copy failed.');
+          setStatus('Failed to copy code.');
+          setTimeout(() => setStatus(''), 2000);
         }
       });
 
-      // Download
+      // Download button
       $('#downloadBtn')?.addEventListener('click', () => {
         makeDownload(shortName(path), content);
+        setStatus('File downloaded!');
+        setTimeout(() => setStatus(''), 2000);
       });
 
     } catch (err) {

@@ -1,24 +1,142 @@
-/* Minimal custom styles to support the app (Tailwind handles the bulk) */
+/* Enhanced custom styles for Arduino Code Manager */
 
 html, body {
   height: 100%;
 }
 
+/* Chapter sections styling */
+.chapter-section {
+  padding: 1.5rem 0;
+  border-bottom: 1px solid rgb(226 232 240); /* slate-200 */
+}
+
+.chapter-section:last-child {
+  border-bottom: none;
+}
+
+@media (prefers-color-scheme: dark) {
+  html.dark .chapter-section {
+    border-bottom-color: rgb(30 41 59); /* slate-800 */
+  }
+}
+
 /* Improve code block readability */
 pre[class*="language-"] {
   line-height: 1.5;
+  position: relative;
 }
 
-/* QR canvas responsive sizing (if library chooses canvas/svg) */
+/* Copy button positioning in code block */
+#copyBtn {
+  opacity: 0.7;
+  transition: all 0.2s ease;
+}
+
+#copyBtn:hover {
+  opacity: 1;
+  transform: scale(1.05);
+}
+
+/* QR canvas responsive sizing */
 #qr > img, #qr > canvas {
   max-width: 100%;
   height: auto;
 }
 
-/* Slight card hover effect (subtle) */
+/* Enhanced card hover effects */
 [data-filecard] {
-  transition: transform 120ms ease, box-shadow 120ms ease;
+  transition: transform 150ms ease, box-shadow 150ms ease;
 }
+
 [data-filecard]:hover {
-  transform: translateY(-1px);
+  transform: translateY(-2px);
+  box-shadow: 0 10px 25px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
+}
+
+@media (prefers-color-scheme: dark) {
+  html.dark [data-filecard]:hover {
+    box-shadow: 0 10px 25px -3px rgb(0 0 0 / 0.3), 0 4px 6px -4px rgb(0 0 0 / 0.1);
+  }
+}
+
+/* Modal backdrop animation */
+#shareModal {
+  animation: fadeIn 0.2s ease-out;
+}
+
+#shareModal.hidden {
+  display: none !important;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+/* Modal content animation */
+#shareModal > div {
+  animation: slideUp 0.2s ease-out;
+}
+
+@keyframes slideUp {
+  from {
+    transform: translateY(1rem);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+/* Responsive improvements */
+@media (max-width: 640px) {
+  /* Smaller QR codes on mobile */
+  .qr {
+    width: 64px !important;
+    height: 64px !important;
+  }
+  
+  /* Better mobile header spacing */
+  header {
+    padding-top: 1rem;
+    padding-bottom: 1rem;
+  }
+  
+  /* Mobile-friendly search bar */
+  #searchInput {
+    font-size: 16px; /* Prevents zoom on iOS */
+  }
+}
+
+/* Focus states for accessibility */
+button:focus-visible,
+a:focus-visible {
+  outline: 2px solid rgb(99 102 241); /* indigo-500 */
+  outline-offset: 2px;
+}
+
+/* Status message styling */
+#status {
+  transition: all 0.3s ease;
+}
+
+#status:not(:empty) {
+  background-color: rgb(239 246 255); /* blue-50 */
+  color: rgb(59 130 246); /* blue-500 */
+  padding: 0.5rem 1rem;
+  border-radius: 0.5rem;
+  border: 1px solid rgb(219 234 254); /* blue-200 */
+}
+
+@media (prefers-color-scheme: dark) {
+  html.dark #status:not(:empty) {
+    background-color: rgb(30 58 138); /* blue-900 */
+    color: rgb(147 197 253); /* blue-300 */
+    border-color: rgb(59 130 246); /* blue-500 */
+  }
 }

@@ -30,33 +30,35 @@
   </head>
   <body class="h-full bg-white text-slate-900 dark:bg-slate-950 dark:text-slate-100">
     <header class="sticky top-0 z-10 border-b border-slate-200 bg-white/90 backdrop-blur dark:border-slate-800 dark:bg-slate-950/90">
-      <div class="mx-auto max-w-6xl px-4 py-3 flex items-center justify-between gap-4">
-        <div class="flex items-center gap-3">
-          <img src="Arduino_Logo_Registered.svg.png" alt="Arduino" class="h-6 w-auto select-none" decoding="async" />
-          <span class="text-xl font-semibold">Arduino Code Library</span>
-          <span id="repoBadge" class="hidden rounded bg-slate-100 px-2 py-0.5 text-xs text-slate-700 dark:bg-slate-900 dark:text-slate-300"></span>
+      <div class="mx-auto max-w-6xl px-4 py-4">
+        <div class="flex items-center justify-center gap-3 mb-4">
+          <img src="Arduino_Logo_Registered.svg.png" alt="Arduino" class="h-8 w-auto select-none" decoding="async" />
+          <h1 class="text-2xl font-bold text-center">21 Projects with Arduino Uno Eka R4</h1>
         </div>
-        <div class="flex items-center gap-3">
-          <div class="relative">
-            <input id="searchInput" type="text" placeholder="Search files..." class="w-56 rounded-md border border-slate-300 bg-white px-3 py-1.5 text-sm placeholder-slate-400 shadow-sm focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500 dark:border-slate-700 dark:bg-slate-900" />
-            <span class="pointer-events-none absolute right-2 top-1.5 text-xs text-slate-400">/</span>
+        <div class="flex items-center justify-between gap-4">
+          <div class="flex-1"></div>
+          <div class="relative flex-1 max-w-md">
+            <input id="searchInput" type="text" placeholder="Search projects and chapters..." class="w-full rounded-md border border-slate-300 bg-white px-3 py-2 text-sm placeholder-slate-400 shadow-sm focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500 dark:border-slate-700 dark:bg-slate-900" />
+            <span class="pointer-events-none absolute right-3 top-2.5 text-xs text-slate-400">/</span>
           </div>
-          <button id="themeToggle" class="rounded-md border border-slate-300 px-3 py-1.5 text-sm shadow-sm hover:bg-slate-100 dark:border-slate-700 dark:hover:bg-slate-900" title="Toggle dark mode">🌓</button>
+          <div class="flex-1 flex justify-end">
+            <button id="themeToggle" class="rounded-md border border-slate-300 px-3 py-2 text-sm shadow-sm hover:bg-slate-100 dark:border-slate-700 dark:hover:bg-slate-900" title="Toggle dark mode">🌓</button>
+          </div>
         </div>
       </div>
     </header>
 
     <main class="mx-auto max-w-6xl px-4 py-6">
-      <p id="intro" class="mb-4 text-sm text-slate-600 dark:text-slate-400">
-        Live list of Arduino files (.ino, .cpp, .h) from this GitHub repository. Click "View Code" for a highlighted preview, download, and a shareable QR code.
+      <p id="intro" class="mb-6 text-center text-sm text-slate-600 dark:text-slate-400">
+        Explore Arduino projects organized by chapters. Click "View Code" to see syntax-highlighted code with sharing options.
       </p>
 
-      <div id="status" class="mb-4 text-sm text-slate-500"></div>
+      <div id="status" class="mb-4 text-sm text-slate-500 text-center"></div>
 
-      <div id="cards" class="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3"></div>
+      <div id="chapters" class="space-y-8"></div>
 
       <div id="emptyState" class="hidden mt-16 text-center text-slate-500 dark:text-slate-400">
-        <p class="text-lg">No Arduino files found yet.</p>
+        <p class="text-lg">No Arduino projects found yet.</p>
       </div>
     </main>
 
