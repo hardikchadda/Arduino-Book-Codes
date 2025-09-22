@@ -1,0 +1,76 @@
+<!doctype html>
+<html lang="en" class="h-full">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>View Code • Arduino Library</title>
+
+    <!-- Optional manual config override (set owner/repo/branch here if auto-detection isn't desired) -->
+    <script>
+      window.APP_CONFIG = {
+        // owner: "your-github-username",
+        // repo: "your-repo-name",
+        // branch: "main", // optional; will auto-detect default branch if not set
+      };
+    </script>
+
+    <!-- Tailwind CSS (CDN) with dark mode via class -->
+    <script>
+      tailwind = undefined;
+      tailwind ??= {};
+      tailwind.config = { darkMode: 'class' };
+    </script>
+    <script src="https://cdn.tailwindcss.com"></script>
+
+    <!-- Prism theme will switch dynamically -->
+    <link id="prism-theme" rel="stylesheet" href="https://cdn.jsdelivr.net/npm/prismjs@1/themes/prism.min.css" />
+
+    <!-- Custom styles -->
+    <link rel="stylesheet" href="style.css" />
+  </head>
+  <body class="h-full bg-white text-slate-900 dark:bg-slate-950 dark:text-slate-100">
+    <header class="sticky top-0 z-10 border-b border-slate-200 bg-white/90 backdrop-blur dark:border-slate-800 dark:bg-slate-950/90">
+      <div class="mx-auto max-w-6xl px-4 py-3 flex items-center justify-between gap-4">
+        <div class="min-w-0">
+          <h1 id="fileTitle" class="truncate text-lg font-semibold">Loading…</h1>
+          <p id="fileMeta" class="truncate text-xs text-slate-500 dark:text-slate-400"></p>
+        </div>
+        <div class="flex items-center gap-2">
+          <a id="backLink" href="index.html" class="rounded-md border border-slate-300 px-3 py-1.5 text-sm shadow-sm hover:bg-slate-100 dark:border-slate-700 dark:hover:bg-slate-900">← Back</a>
+          <button id="copyBtn" class="rounded-md border border-slate-300 px-3 py-1.5 text-sm shadow-sm hover:bg-slate-100 dark:border-slate-700 dark:hover:bg-slate-900">Copy</button>
+          <button id="downloadBtn" class="rounded-md border border-slate-300 px-3 py-1.5 text-sm shadow-sm hover:bg-slate-100 dark:border-slate-700 dark:hover:bg-slate-900">Download</button>
+          <button id="themeToggle" class="rounded-md border border-slate-300 px-3 py-1.5 text-sm shadow-sm hover:bg-slate-100 dark:border-slate-700 dark:hover:bg-slate-900" title="Toggle dark mode">🌓</button>
+        </div>
+      </div>
+    </header>
+
+    <main class="mx-auto max-w-6xl px-4 py-6">
+      <div class="grid grid-cols-1 gap-6 lg:grid-cols-[1fr_240px]">
+        <section class="min-w-0">
+          <pre class="rounded-lg border border-slate-200 bg-slate-50 p-3 text-sm shadow-sm dark:border-slate-800 dark:bg-slate-900 overflow-auto"><code id="codeBlock" class="language-cpp">// Loading…</code></pre>
+        </section>
+        <aside>
+          <div class="rounded-lg border border-slate-200 p-3 shadow-sm dark:border-slate-800">
+            <h2 class="mb-2 text-sm font-semibold">Share</h2>
+            <div id="qr" class="flex items-center justify-center"></div>
+            <p class="mt-2 break-all text-xs text-slate-500 dark:text-slate-400" id="shareUrl"></p>
+          </div>
+        </aside>
+      </div>
+
+      <p id="status" class="mt-4 text-sm text-slate-500"></p>
+    </main>
+
+    <!-- Prism core + languages -->
+    <script src="https://cdn.jsdelivr.net/npm/prismjs@1/prism.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/prismjs@1/components/prism-clike.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/prismjs@1/components/prism-c.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/prismjs@1/components/prism-cpp.min.js"></script>
+
+    <!-- QR Code generator -->
+    <script src="https://cdn.jsdelivr.net/gh/davidshimjs/qrcodejs/qrcode.min.js"></script>
+
+    <!-- App logic -->
+    <script defer src="script.js"></script>
+  </body>
+</html>

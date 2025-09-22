@@ -1,0 +1,24 @@
+/* Minimal custom styles to support the app (Tailwind handles the bulk) */
+
+html, body {
+  height: 100%;
+}
+
+/* Improve code block readability */
+pre[class*="language-"] {
+  line-height: 1.5;
+}
+
+/* QR canvas responsive sizing (if library chooses canvas/svg) */
+#qr > img, #qr > canvas {
+  max-width: 100%;
+  height: auto;
+}
+
+/* Slight card hover effect (subtle) */
+[data-filecard] {
+  transition: transform 120ms ease, box-shadow 120ms ease;
+}
+[data-filecard]:hover {
+  transform: translateY(-1px);
+}
