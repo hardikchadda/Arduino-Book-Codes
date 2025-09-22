@@ -145,6 +145,27 @@
     return data;
   }
 
+  async function fetchManifest() {
+    // Prefer a static files.json served from the site to avoid API rate limits
+    const url = `${location.origin}${state.basePath}files.json`;
+    try {
+      const res = await fetch(url, { cache: 'no-store' });
+      if (!res.ok) throw new Error(`HTTP ${res.status} for manifest`);
+      const data = await res.json();
+      return data;
+    } catch (e) {
+      return null;
+    }
+  }
+
+  function filesFromManifest(manifest) {
+    if (!manifest) return [];
+    const arr = Array.isArray(manifest.files) ? manifest.files : [];
+    // Allow both string paths and {path: "..."} entries
+    return arr.map((item) => (typeof item === 'string' ? { path: item } : { path: item.path }))
+      .filter((f) => f && f.path && isArduinoFile(f.path));
+  }
+
   function isArduinoFile(path) {
     return /\.(ino|cpp|h)$/i.test(path);
   }
@@ -287,6 +308,20 @@
         state.branch = await getDefaultBranch(state.owner, state.repo);
       }
       renderRepoBadge(state.owner, state.repo, state.branch);
+
+      // Attempt to use a static manifest first
+      setStatus('Loading file manifest…');
+      const manifest = await fetchManifest();
+      if (manifest) {
+        if (manifest.branch) state.branch = manifest.branch;
+        const files = filesFromManifest(manifest);
+        files.sort((a, b) => a.path.localeCompare(b.path));
+        renderCards(files, state.branch);
+        setStatus(`Found ${files.length} Arduino file${files.length === 1 ? '' : 's'} (via manifest).`);
+        return;
+      }
+
+      // Fallback to GitHub API if manifest missing
       setStatus('Fetching file list…');
       const tree = await getRepoTree(state.owner, state.repo, state.branch);
       const files = (tree.tree || []).filter((t) => t.type === 'blob' && isArduinoFile(t.path))
