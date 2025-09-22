@@ -543,11 +543,54 @@
         }
       });
 
-      // Download button
-      $('#downloadBtn')?.addEventListener('click', () => {
-        makeDownload(shortName(path), content);
-        setStatus('File downloaded!');
+      // Download dropdown functionality
+      const downloadBtn = $('#downloadBtn');
+      const downloadMenu = $('#downloadMenu');
+      const downloadIno = $('#downloadIno');
+      const downloadTxt = $('#downloadTxt');
+      
+      let isMenuOpen = false;
+      
+      function toggleDownloadMenu() {
+        isMenuOpen = !isMenuOpen;
+        downloadMenu?.classList.toggle('hidden', !isMenuOpen);
+      }
+      
+      function closeDownloadMenu() {
+        isMenuOpen = false;
+        downloadMenu?.classList.add('hidden');
+      }
+      
+      // Toggle dropdown on button click
+      downloadBtn?.addEventListener('click', (e) => {
+        e.stopPropagation();
+        toggleDownloadMenu();
+      });
+      
+      // Close dropdown when clicking outside
+      document.addEventListener('click', (e) => {
+        if (!downloadBtn?.contains(e.target) && !downloadMenu?.contains(e.target)) {
+          closeDownloadMenu();
+        }
+      });
+      
+      // Download .ino file (original extension)
+      downloadIno?.addEventListener('click', () => {
+        const fileName = shortName(path);
+        makeDownload(fileName, content);
+        setStatus('.ino file downloaded!');
         setTimeout(() => setStatus(''), 2000);
+        closeDownloadMenu();
+      });
+      
+      // Download .txt file
+      downloadTxt?.addEventListener('click', () => {
+        const baseName = shortName(path).replace(/\.[^/.]+$/, ''); // Remove extension
+        const txtFileName = baseName + '.txt';
+        makeDownload(txtFileName, content);
+        setStatus('.txt file downloaded!');
+        setTimeout(() => setStatus(''), 2000);
+        closeDownloadMenu();
       });
 
     } catch (err) {

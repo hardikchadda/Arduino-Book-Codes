@@ -132,11 +132,43 @@ pre[class*="language-"] {
   }
 }
 
+/* Download dropdown styling */
+#downloadMenu {
+  animation: slideDown 0.15s ease-out;
+}
+
+#downloadMenu.hidden {
+  display: none !important;
+}
+
+#downloadMenu button {
+  transition: background-color 0.15s ease;
+  border: none;
+  background: none;
+  color: inherit;
+}
+
+@keyframes slideDown {
+  from {
+    opacity: 0;
+    transform: translateY(-0.5rem);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
 /* Focus states for accessibility */
 button:focus-visible,
 a:focus-visible {
   outline: 2px solid rgb(99 102 241); /* indigo-500 */
   outline-offset: 2px;
+}
+
+#downloadMenu button:focus-visible {
+  outline: 2px solid rgb(99 102 241);
+  outline-offset: -2px;
 }
 
 /* Status message styling */
