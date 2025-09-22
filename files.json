@@ -1,9 +1,10 @@
 {
-  "generatedAt": "2025-09-22T08:56:31.628Z",
+  "generatedAt": "2025-09-22T09:07:48.140Z",
   "branch": "main",
   "files": [
     "Chapter 1/01_Blink.ino",
     "Chapter 1/02_Pin9LED.ino",
-    "Chapter 1/03_morseBasic.ino"
+    "Chapter 1/03_morseBasic.ino",
+    "Chapter 2/demo.ino"
   ]
 }
